@@ -38,7 +38,7 @@ export function createMediaAnalysisTools(userId: string) {
       }),
       execute: async ({ attachmentId, question }) => {
         try {
-          const result = await analyzeAttachmentById({ attachmentId, userId, question });
+          const result = await analyzeAttachmentById({ attachmentId, userId, question: question ?? undefined });
           return render(result);
         } catch (error) {
           return `❌ Analyse impossible : ${error instanceof Error ? error.message : String(error)}`;
@@ -54,7 +54,7 @@ export function createMediaAnalysisTools(userId: string) {
       }),
       execute: async ({ url, question }) => {
         try {
-          const result = await analyzeMediaSource({ url, question });
+          const result = await analyzeMediaSource({ url, question: question ?? undefined });
           return render(result);
         } catch (error) {
           return `❌ Analyse impossible : ${error instanceof Error ? error.message : String(error)}`;

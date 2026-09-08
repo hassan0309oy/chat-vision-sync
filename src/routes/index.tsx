@@ -168,7 +168,7 @@ function Workspace() {
       data.messages.map((m) => ({
         id: m.id,
         role: m.role,
-        parts: m.parts,
+        parts: JSON.parse(m.partsJson) as unknown,
       })) as unknown as UIMessage[],
     );
   }
@@ -192,22 +192,21 @@ function Workspace() {
     for (const file of picked) {
       const localId = crypto.randomUUID();
       const previewUrlLocal = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined;
-      setAttachments((prev) => [
-        ...prev,
-        {
+      const entry: PendingAttachment = {
           localId,
           name: file.name,
           size: file.size,
           mimeType: file.type || "application/octet-stream",
           progress: 0,
           status: file.size > MAX_FILE_SIZE ? "error" : "uploading",
-          error:
-            file.size > MAX_FILE_SIZE
-              ? `Fichier trop volumineux (${(file.size / 1048576).toFixed(1)} Mo). Limite : 120 Mo.`
-              : undefined,
-          previewUrl: previewUrlLocal,
-        },
-      ]);
+          ...(file.size > MAX_FILE_SIZE
+            ? {
+                error: `Fichier trop volumineux (${(file.size / 1048576).toFixed(1)} Mo). Limite : 120 Mo.`,
+              }
+            : {}),
+        ...(previewUrlLocal ? { previewUrl: previewUrlLocal } : {}),
+      };
+      setAttachments((prev) => [...prev, entry]);
       if (file.size > MAX_FILE_SIZE) {
         setUploadError(
           `« ${file.name} » fait ${(file.size / 1048576).toFixed(1)} Mo : la limite est de 120 Mo.`,
