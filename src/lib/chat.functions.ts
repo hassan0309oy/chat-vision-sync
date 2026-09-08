@@ -114,10 +114,11 @@ export const loadConversation = createServerFn({ method: "POST" })
 
     return {
       conversation: conversation.data,
+      // `parts` est renvoyé en JSON sérialisé puis ré-hydraté côté client.
       messages: (messages.data ?? []).map((row) => ({
         id: row.id as string,
         role: row.role as "user" | "assistant",
-        parts: (row.parts ?? []) as unknown[],
+        partsJson: JSON.stringify(row.parts ?? []),
       })),
     };
   });
