@@ -509,8 +509,11 @@ function Workspace() {
                   </button>
                 ) : (
                   <button
-                    onClick={submit}
-                    disabled={!input.trim() && !files?.length}
+                    onClick={() => void submit()}
+                    disabled={
+                      (!input.trim() && attachments.every((a) => a.status !== "ready")) ||
+                      attachments.some((a) => a.status === "uploading")
+                    }
                     className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground disabled:opacity-40"
                     aria-label="Envoyer"
                   >
