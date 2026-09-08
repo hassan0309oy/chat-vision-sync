@@ -209,8 +209,8 @@ async function storeRemote(bytes: Uint8Array, mimeType: string, name: string) {
 
 /** Télécharge réellement le média. Lève une erreur explicite si l'accès est refusé. */
 export async function resolveMediaSource(params: {
-  attachment?: AttachmentRow;
-  url?: string;
+  attachment?: AttachmentRow | undefined;
+  url?: string | undefined;
 }): Promise<ResolvedMedia> {
   if (params.attachment) {
     const row = params.attachment;
@@ -326,9 +326,9 @@ export type MediaAnalysis = {
 };
 
 export async function analyzeMediaSource(params: {
-  attachment?: AttachmentRow;
-  url?: string;
-  question?: string;
+  attachment?: AttachmentRow | undefined;
+  url?: string | undefined;
+  question?: string | undefined;
 }): Promise<MediaAnalysis> {
   const key = process.env["LOVABLE_API_KEY"];
   if (!key) throw new Error("LOVABLE_API_KEY absente : l'analyse multimodale est indisponible.");
@@ -370,10 +370,11 @@ export async function analyzeMediaSource(params: {
   if (isVideo) {
     content.push({ type: "video_url", video_url: { url: media.url } });
   } else {
-    const bytes = media.bytes ?? (await (await fetch(media.url)).arrayBuffer().then((b) => new Uint8Array(b)));
+    const audioBytes: Uint8Array =
+      media.bytes ?? new Uint8Array(await (await fetch(media.url)).arrayBuffer());
     let binary = "";
-    for (let i = 0; i < bytes.length; i += 0x8000) {
-      binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+    for (let i = 0; i < audioBytes.length; i += 0x8000) {
+      binary += String.fromCharCode(...audioBytes.subarray(i, i + 0x8000));
     }
     content.push({
       type: "input_audio",
@@ -422,7 +423,7 @@ export async function analyzeMediaSource(params: {
 export async function analyzeAttachmentById(params: {
   attachmentId: string;
   userId: string;
-  question?: string;
+  question?: string | undefined;
 }) {
   const rows = await loadOwnedAttachments([params.attachmentId], params.userId);
   const row = rows[0];

@@ -150,7 +150,7 @@ export const Route = createFileRoute("/api/chat")({
                 : [{ type: "text", text: String(last.content) }];
               last.content = [...current, ...extras] as typeof last.content;
             } else {
-              modelMessages.push({ role: "user", content: extras } as ModelMessage);
+              modelMessages.push({ role: "user", content: extras } as unknown as ModelMessage);
             }
           }
         }
